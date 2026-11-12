@@ -132,6 +132,210 @@ const firebaseConfig = {
   appId: "1:206897247063:web:21b98c366a2a128e244412",
   measurementId: "G-4C6PKLYMZN"
 };
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Registration</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(120deg, #89f7fe, #66a6ff);
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            width: 350px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px #777;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #4285F4;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #googleBtn {
+            background: #db4437;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Student Registration</h2>
+
+    <button id="googleBtn">Sign in with Google</button>
+
+    <p id="status">Sign in to continue</p>
+
+    <form id="studentForm">
+
+        <input type="text" id="name"
+        placeholder="Full Name" required>
+
+        <input type="email" id="email"
+        placeholder="Email ID" required>
+
+        <input type="tel" id="phone"
+        placeholder="Phone Number" required>
+
+        <select id="course" required>
+            <option value="">Select Course</option>
+            <option>B.Tech CSE</option>
+            <option>BCA</option>
+            <option>MCA</option>
+            <option>BBA</option>
+        </select>
+
+        <button type="submit">Register Now</button>
+
+    </form>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+
+import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup
+} from
+"https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+import {
+    getFirestore,
+    collection,
+    addDoc
+} from
+"https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+// Firebase Configuration
+
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.firebasestorage.app",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+const provider = new GoogleAuthProvider();
+
+// Google Sign In Popup
+
+let currentUser = null;
+
+document.getElementById("googleBtn")
+.addEventListener("click", async () => {
+
+    try {
+
+        const result = await signInWithPopup(auth, provider);
+
+        currentUser = result.user;
+
+        document.getElementById("name").value =
+            currentUser.displayName || "";
+
+        document.getElementById("email").value =
+            currentUser.email || "";
+
+        document.getElementById("status").innerText =
+            "Google Sign-In Successful!";
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+
+});
+
+// Student Registration
+
+document.getElementById("studentForm")
+.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    if (!currentUser) {
+        alert("Please sign in with Google first!");
+        return;
+    }
+
+    const studentData = {
+
+        name: document.getElementById("name").value,
+
+        email: currentUser.email,
+
+        phone: document.getElementById("phone").value,
+
+        course: document.getElementById("course").value,
+
+        uid: currentUser.uid,
+
+        registrationDate: new Date()
+
+    };
+
+    try {
+
+        await addDoc(
+            collection(db, "students"),
+            studentData
+        );
+
+        alert("Registration Successful!");
+
+        document.getElementById("studentForm").reset();
+
+    } catch (error) {
+
+        alert("Error: " + error.message);
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
+
+        
     </script>
+    
 </body>
 </html>
